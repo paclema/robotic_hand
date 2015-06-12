@@ -22,7 +22,7 @@ void setup()
     servo[i].write(position[i]);
     } 
 
-  Serial.begin(9600);
+  Serial.begin(19200);
   
 }
 
