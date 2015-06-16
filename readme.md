@@ -1,10 +1,8 @@
-* Robotic hand project
-
+ Robotic hand project
+======================
 That repository contain useful information for controlling and use robotic hands.
 
-Robotic hand (inmoov)  conected with android and 2 arduinos by bluetooth
-========================================================================
-
+* Robotic hand (inmoov)  conected with android and 2 arduinos by bluetooth
 
 An example of that at:
 
