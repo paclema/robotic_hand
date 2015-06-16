@@ -5,80 +5,78 @@ Read from arduino by bluetooth diferent sensors and plot it on phone
     
 */
 
+// UI setup:
+
 ui.backgroundColor(100, 100, 170);
+ui.screenMode("portrait");
+ui.screenMode("immersive");
+ui.allowScroll(true);
+
 var txt = ui.addText(10, 1400, ui.screenWidth, 50);
 var txt2 = ui.addText(10, 1450, ui.screenWidth, 50);
 
 //var servo_values;
 var a,b,c,d,e;
 var a_draw,b_draw,c_draw,d_draw,e_draw;
+
 // *******************************************************************    Bluetooth conections:
-ui.addButton("Scan bluetooth", 680, 150).onClick(function() {
-    network.bluetooth.scanNetworks(function(n, m, s) { 
-        console.log("hola", n, m, s);
-        txt.append(n + " " + m + " " + s + "\n");
-    });
-});
+ 
+
+//HAND:
 
 var btClient1;
-ui.addButton("Connect Hand", 290, 0).onClick(function() {
+ui.addCheckbox("Hand Connected", 630, 0, 500, 100, false).onChange(function(val) { 
+    console.log("Connect Hand" + val);
 
-    btClient1=network.bluetooth.connectSerial('98:D3:31:B2:DC:26', function(status) {
-        console.log("connected btClient1 " + status);
-
-        if (status) media.playSound("Hand_connected.wav");               //media.textToSpeech("Mano conectada"); 
-        //if (!status) media.playSound("Hand_disconnected.wav");           //media.textToSpeech("Mano desconectada"); 
-        
-    });
+    if(val){
+        btClient1=network.bluetooth.connectSerial('98:D3:31:B2:DC:26', function(status) {
+            console.log("connected btClient1 " + status);
     
-    /*
-    btClient1 = network.bluetooth.connectSerial(function(status) {
-        console.log("connected btClient1 " + status);
-        
-        if (status) media.playSound("Hand_connected.wav");               //media.textToSpeech("Mano conectada"); 
-        if (!status) media.playSound("Hand_disconnected.wav");           //media.textToSpeech("Mano desconectada"); 
-    });
-    */
+            if (status) media.playSound("Hand_connected.wav");               //media.textToSpeech("Mano conectada");
+            
+        });
+    }
+    
+    if(!val){
+        if(btClient1){
+            btClient1.disconnect();
+            media.playSound("Hand_disconnected.wav"); 
+        } 
+    }
     
     btClient1.onNewData(function(data) {
         txt.text(data + "\n");
     });
 });
 
-ui.addButton("Disconnect", 10, 0).onClick(function() {
-    if(btClient1) btClient1.disconnect();
-    if(btClient2) btClient2.disconnect();
-});
-
-var input = ui.addInput("message", 10, 150, 400, 150);
-var send = ui.addButton("Send", 410, 150).onClick(function() {
-    btClient1.send(input.getText() + "\n");
-});
-
+//FLEXIGLOVE:
 
 var btClient2;
-ui.addButton("Connect FlexiGlove", 620, 0).onClick(function() {
-    //if you want to use the Bluetooth Address, use 
-    //network.bluetooth.connectSerial(macAddess, function(status) {});
+var btClient2_data;
+ui.addCheckbox("Flexiglobe connected", 630, 70, 500, 100, false).onChange(function(val) { 
+    console.log("Connect FlexiGlove" + val);
     
-    /*
-    btClient2 = network.bluetooth.connectSerial(function(status) {
-        console.log("connected btClient2 " + status);
-    });*/
+    if(val){
+        btClient2=network.bluetooth.connectSerial('98:D3:31:30:1A:8C', function(status) {
+            console.log("connected btClient2 " + status);
+            
+            if (status) media.playSound("Sensors_connected.wav");               //media.textToSpeech("Sensores conectados");
+        });
+        
+    }
     
-    
-    btClient2=network.bluetooth.connectSerial('98:D3:31:30:1A:8C', function(status) {
-        console.log("connected btClient2 " + status);
-        if (status) media.playSound("Sensors_connected.wav");               //media.textToSpeech("Sensores conectados"); 
-        //if (!status) media.playSound("Sensors_disconnected.wav");           //media.textToSpeech("Sensores desconectados"); 
-    });
-
+    if(!val){
+        if(btClient2){
+            btClient1.disconnect();
+            media.playSound("Sensors_disconnected.wav"); 
+        } 
+    }
     
     btClient2.onNewData(function(data) {
         
         txt.text("Raw sensors: " + data + "\n");
         
-       var tabla = data.split(" ");
+        var tabla = data.split(" ");
 
         a=parseInt(tabla[1]);
         b=parseInt(tabla[3]);
@@ -119,9 +117,16 @@ ui.addButton("Connect FlexiGlove", 620, 0).onClick(function() {
     });
 });
 
-// *************************************************************************   buttons:
 
-var send_OPEN = ui.addButton("OPEN", 10, 300).onClick(function() {
+// ********************************************************************   Buttons:
+
+var input = ui.addInput("command", 0, 10, 360, 150);
+var send = ui.addButton("Send", 370, 10).onClick(function() {
+    btClient1.send(input.getText() + "\n");
+});
+
+
+var send_OPEN = ui.addButton("OPEN", 0, 300).onClick(function() {
     //btClient1.send("ALL 50" + "\n");
     btClient1.send("140,40,140,40,40" + "\n");
     
@@ -136,9 +141,8 @@ var send_thumbUp = ui.addButton("send_thumbUp", 610, 300).onClick(function() {
 
 
 
-//*************************************************************************  Processing:
+//**********************************************************************   Plot Processing:
 
-ui.allowScroll(true);
 var processing = ui.addProcessing(10, 600, ui.screenWidth-20, 800, "P3D");
 var c; 
 
@@ -175,7 +179,7 @@ processing.draw(function(p) {
 });
 
 
-//**************************************************************************** Functions:
+//***********************************************************************   Functions:
 
  function  map( sensor_val,  in_min,  in_max,  out_min,  out_max){
        // in_min start of range
