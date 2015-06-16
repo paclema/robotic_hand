@@ -6,10 +6,10 @@ That repository contain useful information for controlling and use robotic hands
 
 An example of that at:
 
-(<https://www.youtube.com/watch?v=_vrbaGxeDyY/>)
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/_vrbaGxeDyY/0.jpg)](http://www.youtube.com/watch?v=_vrbaGxeDyY)
 
 
-Author & license  
---
+## Author & license  
+
 Author: Pablo Clemente Maseda (aka paclema)
 License: CC-BY-SA (<http://creativecommons.org/licenses/by-sa/4.0/>)  
