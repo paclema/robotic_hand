@@ -1,6 +1,10 @@
 #include <Servo.h>
 
 
+//Ejemplo: "40,40,40,40,40" + "\n"
+//btClient1.send("40,40,40,40,40" + "\n");
+
+
 Servo servo[7];
 int position[7];
 
@@ -43,3 +47,4 @@ void loop()
     }
   }
 }
+

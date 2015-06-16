@@ -1,4 +1,4 @@
-const int delay_between_measaures = 250;
+const int delay_between_measaures = 1;
 void setup(){
   Serial.begin(19200); //this baud is compatible with BT
 }
