@@ -6,7 +6,7 @@ That repository contain useful information for controlling and use robotic hands
 
 An example of that at:
 
->(https://www.youtube.com/watch?v=_vrbaGxeDyY/>)
+(<https://www.youtube.com/watch?v=_vrbaGxeDyY/>)
 
 
 Author & license  
