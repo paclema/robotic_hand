@@ -3,6 +3,7 @@
 Read from arduino by bluetooth diferent sensors and plot it on phone. Then connect to another arduino by bluetooth to send data processend on protocoder app
 
 by Pablo Clemente (aka paclema)
+check it at: https://github.com/paclema/robotic_hand
 
     
 */
@@ -87,11 +88,20 @@ ui.addCheckbox("Flexiglobe connected", 630, 70, 500, 100, false).onChange(functi
         txt.text("Raw sensors: " + "\t" + data + "\n");
         
         //Read data values form sensors and stores on sensor_raw array:
+        // Example of raw data: HAND:758,567,744,844,753;
         
-        var tabla = data.split(" ");
+        data=data.split(";");                           //we don't need the final ";" of the protocol
+        var data_part1 = data[0].split(":");            //We take HAND:758,567,744,844,753
+                                                        //Now data_part1[0] = HAND  and data_part1[1] = 758,567,744,844,753
         
-        for(var i=0;i<=4;i++) sensor_raw[i] = tabla[2*i+1];
-        
+        if( data_part1[0] == "HAND"){
+            var data_part2 = data_part1[1].split(",");  //Now data_part2 is data_part1[1] splitted
+            for(var i=0;i<data_part2.length;i++) sensor_raw[i] = data_part2[i];
+            
+            //console.log(data_part2.length);
+            //console.log(data_part2[4]);            
+            //console.log(sensor_raw);
+        }
         
         Update_raw_sensors_data();
         
@@ -164,14 +174,14 @@ function Update_raw_sensors_data(){
     var cnt = 0;
     
     // ParseInt raw data and copy to draw variables for processing plot:
-    for(cnt=0; cnt<=4;cnt++){
+    for(cnt=0; cnt<sensor_raw.length; cnt++){
         sensor_raw[cnt] = parseInt(sensor_raw[cnt]);
         sensor_plot[cnt] = sensor_raw[cnt];
     } 
     
 
     // Map raw data to min/max actuator ends and fix to integer data:
-    for(cnt=0; cnt<=4;cnt++){
+    for(cnt=0; cnt<sensor_raw.length; cnt++){
         if(actuator_dir[cnt])         sensor_raw[cnt] = map( sensor_raw[cnt], sensor_raw_min[cnt], sensor_raw_max[cnt], actuator_min[cnt], actuator_max[cnt]);      //Normal actuator direcction
         else if(!actuator_dir[cnt])   sensor_raw[cnt] = map( sensor_raw[cnt], sensor_raw_max[cnt], sensor_raw_min[cnt], actuator_max[cnt], actuator_min[cnt]);      //Reversed actuator direction
         
@@ -179,25 +189,27 @@ function Update_raw_sensors_data(){
         
     } 
     
-
-   // Map plot data to min/max plot ends and fix to integer data:
-    for(cnt=0;cnt<=4;cnt++){
+    
+    // Map plot data to min/max plot ends and fix to integer data:
+    for(cnt=0; cnt<sensor_raw.length; cnt++){
         sensor_plot[cnt] = map( sensor_plot[cnt], sensor_raw_min[cnt], sensor_raw_max[cnt], plot_min, plot_max);
         sensor_plot[cnt] = sensor_plot[cnt].toFixed(0);
         
     }
     
     // Copy sensor_plot data to sensor_plot_draw data because of misbehaviour on processing plot:
-    for(cnt=0; cnt<=4;cnt++)  sensor_plot_draw[cnt] = sensor_plot[cnt];
+    for(cnt=0; cnt<sensor_raw.length; cnt++)  sensor_plot_draw[cnt] = sensor_plot[cnt];
 
     
 
     // Send processed data to actuators:
     actuator_data.length = 0;               //To empty actuator_data
-    for(cnt=0; cnt<=4; cnt++){
+    actuator_data.push("HAND:");
+    for(cnt=0; cnt<sensor_raw.length; cnt++){
         actuator_data.push(sensor_raw[cnt]);
         if(cnt != 4) actuator_data.push(",");
     }
+    actuator_data.push(";");
 
     if(btClient1) btClient1.send(actuator_data + "\n" );
 
