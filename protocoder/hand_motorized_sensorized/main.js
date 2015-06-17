@@ -3,6 +3,7 @@
 Read from arduino by bluetooth diferent sensors and plot it on phone. Then connect to another arduino by bluetooth to send data processend on protocoder app
 
 by Pablo Clemente (aka paclema)
+check it at: https://github.com/paclema/robotic_hand
 
     
 */
@@ -87,11 +88,20 @@ ui.addCheckbox("Flexiglobe connected", 630, 70, 500, 100, false).onChange(functi
         txt.text("Raw sensors: " + "\t" + data + "\n");
         
         //Read data values form sensors and stores on sensor_raw array:
+        // Example of raw data: HAND:758,567,744,844,753;
         
-        var tabla = data.split(" ");
+        data=data.split(";");                           //we don't need the final ";" of the protocol
+        var data_part1 = data[0].split(":");            //We take HAND:758,567,744,844,753
+                                                        //Now data_part1[0] = HAND  and data_part1[1] = 758,567,744,844,753
         
-        for(var i=0;i<=4;i++) sensor_raw[i] = tabla[2*i+1];
-        
+        if( data_part1[0] == "HAND"){
+            var data_part2 = data_part1[1].split(",");  //Now data_part2 is data_part1[1] splitted
+            for(var i=0;i<data_part2.length;i++) sensor_raw[i] = data_part2[i];
+            
+            //console.log(data_part2.length);
+            //console.log(data_part2[4]);            
+            console.log(sensor_raw);
+        }
         
         Update_raw_sensors_data();
         
