@@ -19,7 +19,7 @@ ui.allowScroll(true);
 var sensor_raw = [];
 var sensor_plot = [];
 var sensor_plot_draw = [];
-
+var actuator_data = [];
 
 var sensor_raw_min = [ 500, 500, 500, 500, 500];
 var sensor_raw_max = [ 900, 900, 900, 900, 900];
@@ -27,6 +27,7 @@ var sensor_raw_max = [ 900, 900, 900, 900, 900];
 var actuator_min = [ 160, 40, 140, 20, 40];
 var actuator_max = [ 0, 140, 20, 140, 180];
 var actuator_dir = [ 0, 1, 0, 1, 1];
+
 
 //*****************************************************************************************   Bluetooth conections:
  
@@ -83,10 +84,15 @@ ui.addCheckbox("Flexiglobe connected", 630, 70, 500, 100, false).onChange(functi
     
     btClient2.onNewData(function(data) {
         
-        txt.text("Raw sensors: " + data + "\n");
+        txt.text("Raw sensors: " + "\t" + data + "\n");
+        
+        //Read data values form sensors and stores on sensor_raw array:
         
         var tabla = data.split(" ");
+        
         for(var i=0;i<=4;i++) sensor_raw[i] = tabla[2*i+1];
+        
+        
         Update_raw_sensors_data();
         
     });
@@ -149,48 +155,58 @@ processing.draw(function(p) {
 var txt = ui.addText(10, 1400, ui.screenWidth, 50);
 var txt2 = ui.addText(10, 1450, ui.screenWidth, 50);
 var txt3 = ui.addText(10, 1500, ui.screenWidth, 50);
+var txt4 = ui.addText(10, 1550, ui.screenWidth, 50);
 
 //*****************************************************************************************   Functions:
 
 function Update_raw_sensors_data(){
     
-        // ParseInt raw data and copy to draw variables for processing plot:
-        for(var i=0; i<=4;i++){
-            sensor_raw[i] = parseInt(sensor_raw[i]);
-            sensor_plot[i] = sensor_raw[i];
-        } 
-        
+    var cnt = 0;
+    
+    // ParseInt raw data and copy to draw variables for processing plot:
+    for(cnt=0; cnt<=4;cnt++){
+        sensor_raw[cnt] = parseInt(sensor_raw[cnt]);
+        sensor_plot[cnt] = sensor_raw[cnt];
+    } 
+    
 
-        // Map raw data to min/max actuator ends and fix to integer data:
-        for(var j=0; j<=4;j++){
-            if(actuator_dir[j])         sensor_raw[j] = map( sensor_raw[j], sensor_raw_min[j], sensor_raw_max[j], actuator_min[j], actuator_max[j]);      //Normal actuator direcction
-            else if(!actuator_dir[j])   sensor_raw[j] = map( sensor_raw[j], sensor_raw_max[j], sensor_raw_min[j], actuator_max[j], actuator_min[j]);      //Reversed actuator direction
-            
-            sensor_raw[j] = sensor_raw[j].toFixed(0);
-            
-        } 
+    // Map raw data to min/max actuator ends and fix to integer data:
+    for(cnt=0; cnt<=4;cnt++){
+        if(actuator_dir[cnt])         sensor_raw[cnt] = map( sensor_raw[cnt], sensor_raw_min[cnt], sensor_raw_max[cnt], actuator_min[cnt], actuator_max[cnt]);      //Normal actuator direcction
+        else if(!actuator_dir[cnt])   sensor_raw[cnt] = map( sensor_raw[cnt], sensor_raw_max[cnt], sensor_raw_min[cnt], actuator_max[cnt], actuator_min[cnt]);      //Reversed actuator direction
         
+        sensor_raw[cnt] = sensor_raw[cnt].toFixed(0);
+        
+    } 
+    
 
-       // Map plot data to min/max plot ends and fix to integer data:
-        for(var l=0;l<=4;l++){
-            sensor_plot[l] = map( sensor_plot[l], sensor_raw_min[l], sensor_raw_max[l], plot_min, plot_max);
-            sensor_plot[l] = sensor_plot[l].toFixed(0);
-            
-        }
+   // Map plot data to min/max plot ends and fix to integer data:
+    for(cnt=0;cnt<=4;cnt++){
+        sensor_plot[cnt] = map( sensor_plot[cnt], sensor_raw_min[cnt], sensor_raw_max[cnt], plot_min, plot_max);
+        sensor_plot[cnt] = sensor_plot[cnt].toFixed(0);
         
-        // Copy sensor_plot data to sensor_plot_draw data because of misbehaviour on processing plot:
-        for(var m=0; m<=4;m++)  sensor_plot_draw[m] = sensor_plot[m];
+    }
+    
+    // Copy sensor_plot data to sensor_plot_draw data because of misbehaviour on processing plot:
+    for(cnt=0; cnt<=4;cnt++)  sensor_plot_draw[cnt] = sensor_plot[cnt];
 
-        
-        // DEBUG:
-        var separator = ",";
-        txt2.text("Actuators: " + sensor_raw + "\n");
-        txt3.text("sensor_plot: " + sensor_plot + "\n");
-        
-        // Send processed data to actuators:
-        if(btClient1) btClient1.send(a + separator + b + separator + c + separator + d + separator + e + "\n" );
-        
-        
+    
+
+    // Send processed data to actuators:
+    actuator_data.length = 0;               //To empty actuator_data
+    for(cnt=0; cnt<=4; cnt++){
+        actuator_data.push(sensor_raw[cnt]);
+        if(cnt != 4) actuator_data.push(",");
+    }
+
+    if(btClient1) btClient1.send(actuator_data + "\n" );
+
+    // DEBUG text:
+    txt2.text("Actuators: " + "\t" + sensor_raw + "\n");
+    txt3.text("actuator_data: " + "\t" + actuator_data + "\n");   
+    txt4.text("sensor_plot: "+ "\t" + sensor_plot + "\n");
+  
+    
 }
 
 function update_sensors_ends(){
@@ -211,3 +227,6 @@ function  map( sensor_val,  in_min,  in_max,  out_min,  out_max){
     return out;
 }
 
+//*****************************************************************************************   Sliders:
+
+    //  ******** ------------ TODO --------------------
