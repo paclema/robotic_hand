@@ -11,15 +11,7 @@ void loop()
   Serial.print(" E "); Serial.print(analogRead(A4));
   Serial.println(); //empty line to see measures differences
   delay(delay_between_measaures);
-  
-/*
-  Serial.print("HAND:");Serial.print(analogRead(A0));
-  Serial.print(","); Serial.print(analogRead(A1));
-  Serial.print(","); Serial.print(analogRead(A2));
-  Serial.print(","); Serial.print(analogRead(A3));
-  Serial.print(","); Serial.print(analogRead(A4));
-  Serial.print(";"); Serial.println();
-  delay(delay_between_measaures);
+
   /*
   values seems to be like that:
   450-500 - straight
