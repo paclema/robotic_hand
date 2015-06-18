@@ -1,28 +1,33 @@
 #include <Servo.h>
 
+/*-- Example of commmands:
 
-//Ejemplo: "40,40,40,40,40" + "\n"
-//btClient1.send("40,40,40,40,40" + "\n");
+    HAND:125,56,44,144,153;
 
+    Values from 0 to 180
 
-Servo servo[7];
-int position[7];
+*/
+
+#define HAND_VALUES 5
+#define NUMBER_OF_SERVOS 5
+
+Servo servo[NUMBER_OF_SERVOS];
+int servo_pos[NUMBER_OF_SERVOS];
+
+String command;
 
 void setup()
 {
-  //-- Attach the servos. Order for right and, counting from little finger to the thumb
-  // servo[2] and servo[4] have opposite direction
+  //-- Attach the servos. Order for right hand, counting from the thumb to the little finger.
+  //-- Servos are connected from digital pin #6 to #10. Servo for wrist is connected at #11 digital pin.
+  
+  //-- Servo setup
+  for (int i=0; i<NUMBER_OF_SERVOS; i++) servo[i].attach(i+6);
 
-  servo[4].attach(6);
-  servo[3].attach(7);
-  servo[2].attach(8);
-  servo[1].attach(9);
-  servo[0].attach(10);
-  //servo[5].attach(11);    //wrist servo
-
-  for (int i=0; i<6; i++){
-    position[i]=90;
-    servo[i].write(position[i]);
+  //-- Servo inti position:
+  for (int i=0; i<NUMBER_OF_SERVOS; i++){
+    servo_pos[i]=90;
+    servo[i].write(servo_pos[i]);
     } 
 
   Serial.begin(19200);
@@ -32,19 +37,48 @@ void setup()
 void loop()
 {
 
-  while (Serial.available() > 0) {
+    if(Serial.available()){
+        char c = Serial.read();
 
-    for (int i=0; i<=4; i++)    position[i] = Serial.parseInt(); 
+        if(c == '\n'){
+          parseCommand(command);
+          command = "";
+        }
+        else command += c;
+    }
 
-    // look for the newline. That's the end of your
-    // sentence:
-    if (Serial.read() == '\n') {
+    for(int i=0; i<NUMBER_OF_SERVOS; i++) servo[i].write(servo_pos[i]);
 
-      for (int i=0; i<=4; i++){
-        servo[i].write(position[i]);
-      }
+}
 
+void parseCommand(String com)
+{
+  String part1;
+  String part2;
+
+  part1 = com.substring(0,com.indexOf(":"));
+  part2 = com.substring(part1.indexOf(":")+1,part1.indexOf(";"));
+
+  if(part1.equalsIgnoreCase("HAND"))
+  {
+    for(int i=0; i<HAND_VALUES; i++){
+      String pos = part2.substring(0,part2.indexOf(","));
+      servo_pos[i] = pos.toInt();
+      part2 = part2.substring(part2.indexOf(",")+1);
     }
   }
+
+  else if(part1.equalsIgnoreCase("FINGER"))
+  {
+
+    int value = part2.toInt();
+    servo[1].write(value);
+
+  }
+  else
+  {
+    Serial.println("Command not recognized");
+
+  }  
 }
 
