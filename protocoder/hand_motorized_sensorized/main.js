@@ -56,7 +56,8 @@ ui.addCheckbox("Hand Connected", 630, 0, 500, 100, false).onChange(function(val)
     }
     
     btClient1.onNewData(function(data) {
-        txt.text(data + "\n");
+        txt5.text("Actuator received data: " + data + "\n");
+        console.log("Actuator received data:" + data);
     });
 });
 
@@ -166,6 +167,7 @@ var txt = ui.addText(10, 1400, ui.screenWidth, 50);
 var txt2 = ui.addText(10, 1450, ui.screenWidth, 50);
 var txt3 = ui.addText(10, 1500, ui.screenWidth, 50);
 var txt4 = ui.addText(10, 1550, ui.screenWidth, 50);
+var txt5 = ui.addText(10, 1600, ui.screenWidth, 50);
 
 //*****************************************************************************************   Functions:
 
@@ -203,6 +205,7 @@ function Update_raw_sensors_data(){
     
 
     // Send processed data to actuators:
+    
     actuator_data.length = 0;               //To empty actuator_data
     actuator_data.push("HAND:");
     for(cnt=0; cnt<sensor_raw.length; cnt++){
@@ -210,13 +213,26 @@ function Update_raw_sensors_data(){
         if(cnt != 4) actuator_data.push(",");
     }
     actuator_data.push(";");
-
-    if(btClient1) btClient1.send(actuator_data + "\n" );
+    
+    var data_string = "\0";
+    for(cnt=0; cnt<actuator_data.length; cnt++) data_string += actuator_data[cnt];
+    
+/*
+     actuator_data.length = 0;               //To empty actuator_data
+    for(cnt=0; cnt<=4; cnt++){
+         actuator_data.push(sensor_raw[cnt]);
+         if(cnt != 4) actuator_data.push(",");
+     }
+ */
+    //if(btClient1) btClient1.send(actuator_data[0] + actuator_data[1] + actuator_data[2] + actuator_data[3] + actuator_data[4] + actuator_data[5] + actuator_data[6] + actuator_data[7] + actuator_data[8] + actuator_data[9] + ";\n" );
+     
+    if(btClient1) btClient1.send(data_string);
 
     // DEBUG text:
     txt2.text("Actuators: " + "\t" + sensor_raw + "\n");
-    txt3.text("actuator_data: " + "\t" + actuator_data + "\n");   
-    txt4.text("sensor_plot: "+ "\t" + sensor_plot + "\n");
+    txt3.text("actuator_data: " + "\t" + actuator_data[0] + actuator_data[1] + actuator_data[2] + actuator_data[3] + actuator_data[4] + actuator_data[5] + actuator_data[6] + actuator_data[7] + actuator_data[8] + actuator_data[9] + ";\n" );   
+    //txt4.text("sensor_plot: "+ "\t" + sensor_plot + "\n"); 
+    txt4.text("data_string: "+ "\t" + data_string + "\n");
   
     
 }
