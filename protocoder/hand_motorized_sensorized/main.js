@@ -21,6 +21,9 @@ var sensor_raw = [];
 var sensor_plot = [];
 var sensor_plot_draw = [];
 var actuator_data = [];
+var data_string = "";
+
+// Max/min ends:
 
 var sensor_raw_min = [ 500, 500, 500, 500, 500];
 var sensor_raw_max = [ 900, 900, 900, 900, 900];
@@ -98,10 +101,6 @@ ui.addCheckbox("Flexiglobe connected", 630, 70, 500, 100, false).onChange(functi
         if( data_part1[0] == "HAND"){
             var data_part2 = data_part1[1].split(",");  //Now data_part2 is data_part1[1] splitted
             for(var i=0;i<data_part2.length;i++) sensor_raw[i] = data_part2[i];
-            
-            //console.log(data_part2.length);
-            //console.log(data_part2[4]);            
-            //console.log(sensor_raw);
         }
         
         Update_raw_sensors_data();
@@ -204,8 +203,7 @@ function Update_raw_sensors_data(){
 
     
 
-    // Send processed data to actuators:
-    
+    // Copy processed data to actuator data array actuator_data with SPP:
     actuator_data.length = 0;               //To empty actuator_data
     actuator_data.push("HAND:");
     for(cnt=0; cnt<sensor_raw.length; cnt++){
@@ -214,19 +212,11 @@ function Update_raw_sensors_data(){
     }
     actuator_data.push(";");
     
-    var data_string = "\0";
-    for(cnt=0; cnt<actuator_data.length; cnt++) data_string += actuator_data[cnt];
+    // Convert actuator_data array of integers to and string data_string to send to bluetooth:
+    for(cnt=0; cnt<actuator_data.length; cnt++)  data_string += actuator_data[cnt];
     
-/*
-     actuator_data.length = 0;               //To empty actuator_data
-    for(cnt=0; cnt<=4; cnt++){
-         actuator_data.push(sensor_raw[cnt]);
-         if(cnt != 4) actuator_data.push(",");
-     }
- */
-    //if(btClient1) btClient1.send(actuator_data[0] + actuator_data[1] + actuator_data[2] + actuator_data[3] + actuator_data[4] + actuator_data[5] + actuator_data[6] + actuator_data[7] + actuator_data[8] + actuator_data[9] + ";\n" );
-     
-    if(btClient1) btClient1.send(data_string);
+    // Send data_string to the actuator bluetooth
+    if(btClient1) btClient1.send(data_string + "\n");
 
     // DEBUG text:
     txt2.text("Actuators: " + "\t" + sensor_raw + "\n");
