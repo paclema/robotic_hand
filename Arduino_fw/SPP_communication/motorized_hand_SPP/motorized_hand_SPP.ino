@@ -47,7 +47,7 @@ void loop()
         else command += c;
     }
 
-    for(int i=0; i<NUMBER_OF_SERVOS; i++) servo[i].write(servo_pos[i]);
+      for(int i=0; i<NUMBER_OF_SERVOS; i++) servo[i].write(servo_pos[i]);
 
 }
 
@@ -57,28 +57,39 @@ void parseCommand(String com)
   String part2;
 
   part1 = com.substring(0,com.indexOf(":"));
-  part2 = com.substring(part1.indexOf(":")+1,part1.indexOf(";"));
+  part2 = com.substring(com.indexOf(":")+1,com.indexOf(";"));
 
   if(part1.equalsIgnoreCase("HAND"))
   {
+    //Serial.print("HAND recognized: ");
+
     for(int i=0; i<HAND_VALUES; i++){
-      String pos = part2.substring(0,part2.indexOf(","));
-      servo_pos[i] = pos.toInt();
+
+      servo_pos[i] = part2.substring(0,part2.indexOf(",")).toInt();
+      //Serial.print(servo_pos[i]);
       part2 = part2.substring(part2.indexOf(",")+1);
+      //Serial.print("\t");
     }
+
+      //Serial.println("_");
+
+
+
+    for(int i=0; i<NUMBER_OF_SERVOS; i++) servo[i].write(servo_pos[i]);
   }
 
   else if(part1.equalsIgnoreCase("FINGER"))
   {
 
-    int value = part2.toInt();
-    servo[1].write(value);
+
 
   }
   else
   {
-    Serial.println("Command not recognized");
+   // Serial.print("Command not recognized");
+   // Serial.println(com);
 
   }  
+
 }
 
