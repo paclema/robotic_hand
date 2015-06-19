@@ -72,7 +72,6 @@ void parseCommand(String com)
 
       //Serial.println("_");
 
-
     // Move actuators of HAND:
     for(int i=0; i<HAND_VALUES; i++) servo[i].write(servo_pos[i]);
 
@@ -84,12 +83,10 @@ void parseCommand(String com)
       servo_pos[fingerIndex] = getValuesFromCommand(part2);
       // Move the finguer #fingerIndex:
       servo[fingerIndex].write(servo_pos[fingerIndex]);
-    }
 
   }
   else if(part1.equalsIgnoreCase("WRIST"))
   {
-.
     servo_pos[5] = getValuesFromCommand(part2);
     servo[5].write(servo_pos[5]);    
 
@@ -106,5 +103,5 @@ void parseCommand(String com)
 int getValuesFromCommand (String& command_values){
   int value = command_values.substring(0,command_values.indexOf(",")).toInt();
   command_values = command_values.substring(command_values.indexOf(",")+1);
-  return value
+  return value;
 }
