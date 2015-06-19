@@ -9,7 +9,7 @@
 */
 
 #define HAND_VALUES 5
-#define NUMBER_OF_SERVOS 5
+#define NUMBER_OF_SERVOS 6
 
 Servo servo[NUMBER_OF_SERVOS];
 int servo_pos[NUMBER_OF_SERVOS];
@@ -81,12 +81,19 @@ void parseCommand(String com)
   else if(part1.equalsIgnoreCase("FINGER"))
   {
 
+// -------------------- TODO -------------
 
+  }
+  else if(part1.equalsIgnoreCase("WRIST"))
+  {
+
+    servo_pos[5] = part2.substring(0,part2.indexOf(";")).toInt();
+    servo[5].write(servo_pos[5]);    
 
   }
   else
   {
-   // Serial.print("Command not recognized");
+    Serial.print("Command not recognized");
    // Serial.println(com);
 
   }  
