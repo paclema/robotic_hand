@@ -279,7 +279,7 @@ function  map( sensor_val,  in_min,  in_max,  out_min,  out_max){
     
 //Add a seekbar
 var slider = ui.addSlider(ui.screenWidth - 510, ui.screenHeight - 300, 500, 100, 40, 140).onChange(function(val) {
-    if(btClient1) btClient1.send("FINGER:" + val + ";" + "\n");
+    if(btClient1) btClient1.send("FINGER:2," + val + ";" + "\n");
 });
 
 //*****************************************************************************************   Timers:
