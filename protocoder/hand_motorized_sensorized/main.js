@@ -32,7 +32,10 @@ var actuator_min = [ 160, 40, 140, 20, 40];
 var actuator_max = [ 0, 140, 20, 140, 180];
 var actuator_dir = [ 0, 1, 0, 1, 1];
 
+// Enviroment variables:
 
+var Sensors_detected = false;
+var Offline_interval = 1000;
 //*****************************************************************************************   Bluetooth conections:
  
 
@@ -117,17 +120,34 @@ var send = ui.addButton("Send", 370, 10).onClick(function() {
 });
 
 
-var send_OPEN = ui.addButton("OPEN", 0, 300).onClick(function() {
+var send_OPEN = ui.addButton("WRIST:60;", 0, 300).onClick(function() {
     //btClient1.send("ALL 50" + "\n");
-    btClient1.send("140,40,140,40,40" + "\n");
+    //btClient1.send("140,40,140,40,40" + "\n");
+    btClient1.send("WRIST:60;" + "\n");
     
 });
-var send_CLOSED = ui.addButton("CLOSED", 310, 300).onClick(function() {
+var send_CLOSED = ui.addButton("WRIST:120;", 310, 300).onClick(function() {
     //btClient1.send("ALL -50" + "\n");
-    btClient1.send("40,140,40,140,140" + "\n");
+    //btClient1.send("40,140,40,140,140" + "\n");
+    btClient1.send("WRIST:120;" + "\n");  
+  
 });
-var send_thumbUp = ui.addButton("send_thumbUp", 610, 300).onClick(function() {
-    btClient1.send("40,140,40,140,140" + "\n" +  "E 140" + "\n");
+var send_thumbUp = ui.addButton("Trolleo", 610, 300).onClick(function() {
+    if(btClient1){
+        btClient1.send("WRIST:60;" + "\n");
+        util.delay(500, function() {
+            btClient1.send("HAND:140,40,140,40,40;" + "\n");
+            util.delay(500, function() {
+                btClient1.send("HAND:40,140,40,140,140;" + "\n");
+                util.delay(500, function() {
+                    btClient1.send("WRIST:120;" + "\n");
+                    util.delay(1000, function() {
+                        btClient1.send("HAND:40,140,140,140,140;" + "\n");
+                    });
+                });
+            });
+        });
+    }
 });
 
 
@@ -151,13 +171,20 @@ processing.draw(function(p) {
     p.noStroke();
     p.fill(255);
 
-    
-    for(var j=0;j<5;j++){
-        p.fill(2*sensor_plot_draw[j],0,255-2*sensor_plot_draw[j]);
-        p.rect(0+j*220,   p.height, 200, -sensor_plot_draw[j]);
-        
+    if(Sensors_detected){
+        for(var j=0;j<5;j++){
+            p.fill(2*sensor_plot_draw[j],0,255-2*sensor_plot_draw[j]);
+            p.rect(0+j*220,   p.height, 200, -sensor_plot_draw[j]);
+        }
     }
+    else if(!Sensors_detected){
         
+    p.fill(255,120,42);
+    p.textSize(130);    
+    p.text("Sensors offline!",80,400);
+    
+    }
+
 });
 
 //*****************************************************************************************   Texts:
@@ -213,6 +240,7 @@ function Update_raw_sensors_data(){
     actuator_data.push(";");
     
     // Convert actuator_data array of integers to and string data_string to send to bluetooth:
+    data_string = "";
     for(cnt=0; cnt<actuator_data.length; cnt++)  data_string += actuator_data[cnt];
     
     // Send data_string to the actuator bluetooth
@@ -248,3 +276,24 @@ function  map( sensor_val,  in_min,  in_max,  out_min,  out_max){
 //*****************************************************************************************   Sliders:
 
     //  ******** ------------ TODO --------------------
+    
+//Add a seekbar
+var slider = ui.addSlider(ui.screenWidth - 510, ui.screenHeight - 300, 500, 100, 40, 140).onChange(function(val) {
+    if(btClient1) btClient1.send("FINGER:" + val + ";" + "\n");
+});
+
+//*****************************************************************************************   Timers:
+
+var loop1;
+
+if(!btClient2){
+    loop1 = util.loop(Offline_interval, function () { 
+    if(Sensors_detected) Sensors_detected = false;
+    else Sensors_detected = true;
+    }).start();
+}
+else if(btClient2){
+    //this is how you stop a looper 
+    loop1.stop();
+    Sensors_detected = true;
+}
