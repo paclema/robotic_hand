@@ -35,6 +35,8 @@ var actuator_dir = [ 0, 1, 0, 1, 1];
 // Enviroment variables:
 
 var Sensors_detected = false;
+var display_sensors_offline = true;
+
 var Offline_interval = 1000;
 //*****************************************************************************************   Bluetooth conections:
  
@@ -79,6 +81,7 @@ ui.addCheckbox("Flexiglobe connected", 630, 70, 500, 100, false).onChange(functi
             console.log("connected btClient2 " + status);
             
             if (status) media.playSound("Sensors_connected.wav");               //media.textToSpeech("Sensores conectados");
+            Sensors_detected = true;
         });
         
     }
@@ -86,6 +89,7 @@ ui.addCheckbox("Flexiglobe connected", 630, 70, 500, 100, false).onChange(functi
     if(!val){
         if(btClient2){
             btClient2.disconnect();
+            Sensors_detected = false;
             media.playSound("Sensors_disconnected.wav"); 
         } 
     }
@@ -177,7 +181,7 @@ processing.draw(function(p) {
             p.rect(0+j*220,   p.height, 200, -sensor_plot_draw[j]);
         }
     }
-    else if(!Sensors_detected){
+    else if(display_sensors_offline && !Sensors_detected){
         
     p.fill(255,120,42);
     p.textSize(130);    
@@ -286,14 +290,16 @@ var slider = ui.addSlider(ui.screenWidth - 510, ui.screenHeight - 300, 500, 100,
 
 var loop1;
 
-if(!btClient2){
+if(!Sensors_detected){
     loop1 = util.loop(Offline_interval, function () { 
-    if(Sensors_detected) Sensors_detected = false;
-    else Sensors_detected = true;
+    if(display_sensors_offline) display_sensors_offline = false;
+    else display_sensors_offline = true;
     }).start();
 }
-else if(btClient2){
+else if(Sensors_detected){
     //this is how you stop a looper 
     loop1.stop();
-    Sensors_detected = true;
+    display_sensors_offline = false;
 }
+
+
