@@ -1,5 +1,9 @@
  Robotic hand project
 ======================
+The new location is <https://github.com/bq/theseus>
+
+This location will not be updated.
+
 That repository contain useful information for controlling and use robotic hands.
 
 * Robotic hand (inmoov)  conected with android and 2 arduinos by bluetooth
